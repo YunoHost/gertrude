@@ -1,5 +1,7 @@
-django
-django
-django-extensions
-werkzeug
-markdown2
+Django==2.0.4
+django-extensions==2.0.7
+Markdown==2.6.11
+pkg-resources==0.0.0
+pytz==2018.4
+six==1.11.0
+Werkzeug==0.14.1
