@@ -3,9 +3,11 @@ import os
 # from markdown2 import markdown_path
 from markdown import markdownFromFile
 
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.conf import settings
 from django.shortcuts import render, redirect
+
+from .models import PageEditForm
 
 
 def get_raw_markdown(request, file_name):
@@ -65,3 +67,19 @@ def get_page(request, file_name):
 
 def redirect_images_to_media(request, image):
     return redirect(settings.MEDIA_URL + "images/" + image)
+
+def submit_page_change(request):
+
+    if request.method == 'POST':
+        form = PageEditForm(data=request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponse('')
+        else:
+            error_html = [ "<strong>{key}</strong>: {message}".format(key=key,
+                                                                      message=', '.join(message))
+                           for key, message in form.errors.items() ]
+            error_html = "<br>".join(error_html)
+            return HttpResponseForbidden(error_html)
+    else:
+        raise Http404

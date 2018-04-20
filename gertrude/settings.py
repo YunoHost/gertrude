@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     # vendor
     'django_extensions',
 
+    # stuff for deferred action after email validation
+    'generic_confirmation',
+
     # apps
     'git_manager',
     'frontend',

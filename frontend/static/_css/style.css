@@ -303,8 +303,10 @@ hr {
     border: none;
 }
 
-
-
+#ajax-loader {
+    margin-left: 10px;
+    display: none;
+}
 
 
 /** *************************************************** **/

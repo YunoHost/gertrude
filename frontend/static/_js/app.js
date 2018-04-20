@@ -100,6 +100,7 @@ $(document).ready(function () {
         });
 
         sam.get('#/:name', function (c) {
+            $(".actions").css('opacity', 1);
             c.viewPage(c.params['name']);
         });
 
@@ -135,37 +136,73 @@ $(document).ready(function () {
 
     });
 
+	function getCookie(name) {
+		var cookieValue = null;
+		if (document.cookie && document.cookie !== '') {
+			var cookies = document.cookie.split(';');
+			for (var i = 0; i < cookies.length; i++) {
+				var cookie = jQuery.trim(cookies[i]);
+				// Does this cookie string begin with the name we want?
+				if (cookie.substring(0, name.length + 1) === (name + '=')) {
+					cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+					break;
+				}
+			}
+		}
+		return cookieValue;
+	};
+
+	function csrfSafeMethod(method) {
+		// these HTTP methods do not require CSRF protection
+		return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	};
+
+	$.ajaxSetup({
+		beforeSend: function(xhr, settings) {
+			if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+				var csrftoken = getCookie('csrftoken');
+				xhr.setRequestHeader("X-CSRFToken", csrftoken);
+			}
+		}
+	});
+
     function sendModifications(page) {
-        auth = "Basic "+ btoa($('#user').val() +':'+ $('#password').val());
-        $('#reallysend').after('&nbsp;<img src="/ajax-loader.gif" class="ajax-loader">');
+        email = $('#email').val();
+        descr = $('#descr').val();
+
+        $('#reallysend').prop("disabled",true);
+        $('#ajax-loader').toggle(true);
         $.ajax({
-            url: 'save/',
+            url: 'submit_page_change',
             type: 'POST',
-            data: {
-                'page': page,
-                'content': store.get('data-'+ page)
+            data: { 'page': page, 
+                    'content': store.get('data-'+ page), 
+                    'email': email,
+                    'descr': descr 
             }
         })
         .success(function(data) {
             $('#sendModal').modal('hide');
+            $('#reallysend').prop("disabled",false);
             $('.ajax-loader').remove();
             $('#win').fadeIn('fast', function() {
                 setTimeout(function() {
-                    $('#win').fadeOut();
-                }, 3000);
+                    $('#win').fadeOut('slow');
+                }, 10000);
             });
             return true;
         })
         .fail(function(xhr) {
-            $('.ajax-loader').remove();
+            $('#reallysend').prop("disabled",false);
+            $('#ajax-loader').toggle(false);
             if (xhr.status == 401) {
                 $('#sendModal alert p').html('Wrong username/password combination');
             } else {
-                $('#sendModal').modal('hide');
-                $('#fail').fadeIn('fast', function() {
+                $('#sendFail').html(xhr.responseText);
+                $('#sendFail').fadeIn('fast', function() {
                     setTimeout(function() {
-                        $('#fail').fadeOut();
-                    }, 3000);
+                        $('#sendFail').fadeOut('slow');
+                    }, 10000);
                 });
                 return false;
             }
@@ -210,7 +247,22 @@ $(document).ready(function () {
     function changeLanguage(lang) {
         $('[data-i18n]').each( function() {
             key = $( this ).attr('data-i18n');
-            $( this ).html(i18n[lang][key]);
+            // Dirty hack to be able to modify other stuff than the inner html,
+            // like i18next does.
+            if (key.startsWith("[title]"))
+            {
+                key = key.replace("[title]", "")
+                $( this ).attr("title", i18n[lang][key]);
+            }
+            else if (key.startsWith("[placeholder]"))
+            {
+                key = key.replace("[placeholder]", "")
+                $( this ).prop("placeholder", i18n[lang][key]);
+            }
+            else
+            {
+                $( this ).html(i18n[lang][key]);
+            }
         });
         store.set('lang', lang);
     }
