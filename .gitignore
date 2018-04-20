@@ -1,3 +1,4 @@
-ve
+venv
 *.pyc
 git_content
+db.sqlite3

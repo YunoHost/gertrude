@@ -46,14 +46,20 @@ def get_page(request, file_name):
         raise Http404
 
     # html = markdown_path(os.path.join(settings.BASE_DIR, "git_content", file_name + ".md"))
-    from StringIO import StringIO
-    html = StringIO()
+    try:
+        # Python2
+        from StringIO import StringIO
+        html = StringIO()
+    except ImportError:
+        # Python3
+        from io import BytesIO
+        html = BytesIO()
     markdownFromFile(input=os.path.join(settings.BASE_DIR, "git_content", file_name + ".md"), output=html)
 
     html.read()
 
     return render(request, "index.html", {
-        "content": html.buf,
+        "content": html.getvalue(),
     })
 
 
