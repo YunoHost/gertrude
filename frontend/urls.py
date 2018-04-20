@@ -1,5 +1,6 @@
 from django.conf.urls import url
 from django.shortcuts import redirect
+from django.urls import include
 
 from . import views
 
@@ -10,5 +11,6 @@ urlpatterns = [
     url(r'^config.json$', lambda request: redirect("/static/config.json"), name=''),
     url(r'^_pages/(.*)$', views.get_raw_markdown, name=''),
     url(r'^submit_page_change$', views.submit_page_change, name=''),
+    url(r'^confirm/', include('generic_confirmation.urls')),
     url(r'^(.*)$', views.get_page, name=''),
 ]

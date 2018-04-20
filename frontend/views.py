@@ -73,7 +73,7 @@ def submit_page_change(request):
     if request.method == 'POST':
         form = PageEditForm(data=request.POST)
         if form.is_valid():
-            form.save()
+            form.save(request=request)
             return HttpResponse('')
         else:
             error_html = [ "<strong>{key}</strong>: {message}".format(key=key,

@@ -1,0 +1,7 @@
+Thank you for you recent contribution on the YunoHost documentation !
+
+In order to be able to validate it, we just need you to click on the following
+link to confirm that your email is valid :
+
+{{ confirm_url }}
+

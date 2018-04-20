@@ -2,6 +2,9 @@ from __future__ import unicode_literals
 
 from django import forms
 from django.db import models
+from django.conf import settings
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 
 from generic_confirmation import signals
 from generic_confirmation.forms import DeferredForm
@@ -14,7 +17,7 @@ class PageEdit(models.Model):
     descr = models.CharField(max_length=150, null=True)
 
     def __str__(self):
-        return "Page %s edit from %s" % (page, email)
+        return "Page %s edit from %s" % (self.page, self.email)
 
 class PageEditForm(DeferredForm):
     class Meta:
@@ -27,16 +30,17 @@ class PageEditForm(DeferredForm):
         for key in self.fields:
             self.fields[key].required = True
 
+    def save(self):
+        print("Test?")
 
+    def send_notification(self, user=None, instance=None, **kwargs):
 
+        import pdb; pdb.set_trace()
 
-def send_notification(sender, instance, **kwargs):
-    """ a signal receiver which does some tests """
+        confirm_url = settings.CONFIRM_URL.format(token=instance.token)
 
-    print("in send notifications")
-    print(sender)  # the class which is edited
-    print(instance)  # the DeferredAction
-    print(instance.token)  # needed to confirm the action
+        send_mail("[YunoHost doc] Please confirm your submission !",
+                  render_to_string("confirm_mail.txt", { 'confirm_url': confirm_url }),
+                  from_email="test@yunohost.org",
+                  recipient_list=[self.cleaned_data['email'],])
 
-
-signals.confirmation_required.connect(send_notification)

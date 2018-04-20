@@ -133,3 +133,6 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 GIT_URL = "https://github.com/YunoHost/doc"
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+CONFIRM_URL = 'https://yunohost.org/confirm/{token}'
