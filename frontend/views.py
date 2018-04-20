@@ -1,4 +1,7 @@
 import os
+import re
+import subprocess
+
 
 # from markdown2 import markdown_path
 from markdown import markdownFromFile
@@ -71,9 +74,15 @@ def redirect_images_to_media(request, image):
 def submit_page_change(request):
 
     if request.method == 'POST':
-        form = PageEditForm(data=request.POST)
+
+        diff = get_diff(request.POST.get("page", ""),
+                        request.POST.get("content", ""))
+        form = PageEditForm({"page": request.POST.get("page", ""),
+                             "content": diff,
+                             "descr": request.POST.get("descr", ""),
+                             "email": request.POST.get("email", "")})
         if form.is_valid():
-            form.save(request=request)
+            form.save()
             return HttpResponse('')
         else:
             error_html = [ "<strong>{key}</strong>: {message}".format(key=key,
@@ -83,3 +92,17 @@ def submit_page_change(request):
             return HttpResponseForbidden(error_html)
     else:
         raise Http404
+
+
+def get_diff(page, content):
+    if not re.compile("^\w+$").match(page):
+        return ""
+
+    p = subprocess.Popen(["git", "diff", "--no-index", "--", page+".md", "-" ],
+                         cwd="./git_content",
+                         stdout=subprocess.PIPE,
+                         stdin=subprocess.PIPE)
+    p.stdin.write(content.encode('utf-8'))
+    diff = p.communicate()[0].decode('utf-8')
+    p.stdin.close()
+    return diff

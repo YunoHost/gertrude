@@ -30,12 +30,14 @@ class PageEditForm(DeferredForm):
         for key in self.fields:
             self.fields[key].required = True
 
-    def save(self):
-        print("Test?")
+    def save(self, *args, **kwargs):
+
+        # TODO/FIXME : validate that page is a file name (alphanumcharacter and
+        # _ but nothing else ! (no space, no slash, no punctuation !))
+
+        super().save(*args, **kwargs)
 
     def send_notification(self, user=None, instance=None, **kwargs):
-
-        import pdb; pdb.set_trace()
 
         confirm_url = settings.CONFIRM_URL.format(token=instance.token)
 
@@ -43,4 +45,19 @@ class PageEditForm(DeferredForm):
                   render_to_string("confirm_mail.txt", { 'confirm_url': confirm_url }),
                   from_email="test@yunohost.org",
                   recipient_list=[self.cleaned_data['email'],])
+
+
+
+def page_edit_confirmed(sender, instance, **kwargs):
+    instance.confirmed = False
+    instance.save()
+    descr = instance.form_input["descr"]
+    page = instance.form_input["page"]
+    email = instance.form_input["email"]
+    content = instance.form_input["content"]
+    print("Confirming edition")
+    print("[WIP] Here we should create the PR")
+
+signals.change_confirmed.connect(page_edit_confirmed)
+
 
