@@ -12,9 +12,10 @@ from generic_confirmation.forms import DeferredForm
 
 class PageEdit(models.Model):
     page = models.CharField(max_length=100, null=True)
-    content = models.CharField(max_length=50000, null=True)
+    patch = models.CharField(max_length=5000, null=True)
     email = models.EmailField(null=True)
-    descr = models.CharField(max_length=150, null=True)
+    comment = models.CharField(max_length=150, null=True)
+    date = models.DateTimeField(null=True)
 
     def __str__(self):
         return "Page %s edit from %s" % (self.page, self.email)
@@ -22,7 +23,7 @@ class PageEdit(models.Model):
 class PageEditForm(DeferredForm):
     class Meta:
         model = PageEdit
-        fields = [ "page", "content", "email", "descr" ]
+        fields = [ "page", "patch", "email", "comment", "date" ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,12 +31,17 @@ class PageEditForm(DeferredForm):
         for key in self.fields:
             self.fields[key].required = True
 
-    def save(self, *args, **kwargs):
+    def clean_page(self):
+        page = self.cleaned_data['page']
+        if not re.compile("^\w+$").match(page):
+            raise ValidationError("This is not a valid page name !")
+        return page
 
-        # TODO/FIXME : validate that page is a file name (alphanumcharacter and
-        # _ but nothing else ! (no space, no slash, no punctuation !))
-
-        super().save(*args, **kwargs)
+    def clean_patch(self):
+        patch = self.cleaned_data['patch']
+        if len(patch) == 0:
+            raise ValidationError("Invalid patch ?")
+        return patch
 
     def send_notification(self, user=None, instance=None, **kwargs):
 
@@ -47,14 +53,15 @@ class PageEditForm(DeferredForm):
                   recipient_list=[self.cleaned_data['email'],])
 
 
-
 def page_edit_confirmed(sender, instance, **kwargs):
+
     instance.confirmed = False
     instance.save()
-    descr = instance.form_input["descr"]
+    comment = instance.form_input["comment"]
     page = instance.form_input["page"]
-    email = instance.form_input["email"]
-    content = instance.form_input["content"]
+    patch = instance.form_input["patch"]
+    date = instance.form_input["date"]
+
     print("Confirming edition")
     print("[WIP] Here we should create the PR")
 

@@ -1,7 +1,7 @@
 import os
 import re
 import subprocess
-
+import datetime
 
 # from markdown2 import markdown_path
 from markdown import markdownFromFile
@@ -75,12 +75,13 @@ def submit_page_change(request):
 
     if request.method == 'POST':
 
-        diff = get_diff(request.POST.get("page", ""),
-                        request.POST.get("content", ""))
+        patch = get_diff(request.POST.get("page", ""),
+                         request.POST.get("content", ""))
         form = PageEditForm({"page": request.POST.get("page", ""),
-                             "content": diff,
-                             "descr": request.POST.get("descr", ""),
-                             "email": request.POST.get("email", "")})
+                             "patch": patch,
+                             "comment": request.POST.get("descr", ""),
+                             "email": request.POST.get("email", ""),
+                             "date": datetime.datetime.now()})
         if form.is_valid():
             form.save()
             return HttpResponse('')
