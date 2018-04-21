@@ -130,9 +130,16 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+MEDIA_ROOT = os.path.join(BASE_DIR, "git_content/")
 
 GIT_URL = "https://github.com/YunoHost/doc"
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 CONFIRM_URL = 'https://yunohost.org/confirm/{token}'
+
+BOT_NAME = "YunoHost Bot"
+BOT_EMAIL = "yunobot@yunohost.org"
+BOT_REPO = "YunHost-Bot/doc"
+BOT_LOGIN = BOT_REPO.split('/')[0]
+BOT_TOKEN = "LOREMIPSUM"
+BOT_PR_DESTINATION = "yunohost/doc"
