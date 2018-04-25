@@ -25,8 +25,8 @@ class PageEdit(models.Model):
     comment = models.CharField(max_length=150, null=True, blank=True)
     date = models.DateTimeField(null=True, blank=True)
 
-    def __str__(self):
-        return "Page %s edit from %s" % (self.page, self.email)
+    def __unicode__(self):
+        return u"Page %s edit from %s" % (self.page, self.email)
 
 class PageEditForm(DeferredForm):
     class Meta:
