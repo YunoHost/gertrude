@@ -85,12 +85,12 @@ def submit_page_change(request):
     if form.is_valid():
         form.save()
         return HttpResponse('')
-    else:
-        error_html = [ "<strong>{key}</strong>: {message}".format(key=key,
-                                                                  message=', '.join(message))
-                       for key, message in form.errors.items() ]
-        error_html = "<br>".join(error_html)
-        return HttpResponseForbidden(error_html)
+
+    error_html = [ "<strong>{key}</strong>: {message}".format(key=key,
+                                                              message=', '.join(message))
+                   for key, message in form.errors.items() ]
+    error_html = "<br>".join(error_html)
+    return HttpResponseForbidden(error_html)
 
 
 def get_diff(page, content):
