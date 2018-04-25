@@ -9,6 +9,7 @@ from markdown import markdownFromFile
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.conf import settings
 from django.shortcuts import render, redirect
+from django.views.decorators.http import require_POST
 
 from .models import PageEditForm
 
@@ -71,28 +72,25 @@ def get_page(request, file_name):
 def redirect_images_to_media(request, image):
     return redirect(settings.MEDIA_URL + "images/" + image)
 
+@require_POST
 def submit_page_change(request):
 
-    if request.method == 'POST':
-
-        patch = get_diff(request.POST.get("page", ""),
-                         request.POST.get("content", ""))
-        form = PageEditForm({"page": request.POST.get("page", ""),
-                             "patch": patch,
-                             "comment": request.POST.get("descr", ""),
-                             "email": request.POST.get("email", ""),
-                             "date": datetime.datetime.now()})
-        if form.is_valid():
-            form.save()
-            return HttpResponse('')
-        else:
-            error_html = [ "<strong>{key}</strong>: {message}".format(key=key,
-                                                                      message=', '.join(message))
-                           for key, message in form.errors.items() ]
-            error_html = "<br>".join(error_html)
-            return HttpResponseForbidden(error_html)
+    patch = get_diff(request.POST.get("page", ""),
+                     request.POST.get("content", ""))
+    form = PageEditForm({"page": request.POST.get("page", ""),
+                         "patch": patch,
+                         "comment": request.POST.get("descr", ""),
+                         "email": request.POST.get("email", ""),
+                         "date": datetime.datetime.now()})
+    if form.is_valid():
+        form.save()
+        return HttpResponse('')
     else:
-        raise Http404
+        error_html = [ "<strong>{key}</strong>: {message}".format(key=key,
+                                                                  message=', '.join(message))
+                       for key, message in form.errors.items() ]
+        error_html = "<br>".join(error_html)
+        return HttpResponseForbidden(error_html)
 
 
 def get_diff(page, content):
