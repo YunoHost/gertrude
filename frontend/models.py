@@ -58,7 +58,8 @@ class PageEditForm(DeferredForm):
         send_mail("[YunoHost doc] Please confirm your submission !",
                   render_to_string("confirm_mail.txt", { 'confirm_url': confirm_url }),
                   from_email="test@yunohost.org",
-                  recipient_list=[self.cleaned_data['email'],])
+                  recipient_list=[self.cleaned_data['email'],],
+                  fail_silently=False,)
 
 
 def page_edit_confirmed(sender, instance, **kwargs):
