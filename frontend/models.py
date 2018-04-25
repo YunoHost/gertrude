@@ -19,11 +19,11 @@ from generic_confirmation.forms import DeferredForm
 
 
 class PageEdit(models.Model):
-    page = models.CharField(max_length=100, null=True)
-    patch = models.CharField(max_length=5000, null=True)
-    email = models.EmailField(null=True)
-    comment = models.CharField(max_length=150, null=True)
-    date = models.DateTimeField(null=True)
+    page = models.CharField(max_length=100, null=True, blank=True)
+    patch = models.CharField(max_length=5000, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    comment = models.CharField(max_length=150, null=True, blank=True)
+    date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return "Page %s edit from %s" % (self.page, self.email)
