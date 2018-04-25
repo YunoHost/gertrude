@@ -10,6 +10,7 @@ from filelock import Timeout, FileLock
 
 from django import forms
 from django.db import models
+from django.urls import reverse
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -53,7 +54,12 @@ class PageEditForm(DeferredForm):
 
     def send_notification(self, user=None, instance=None, **kwargs):
 
-        confirm_url = settings.CONFIRM_URL.format(token=instance.token)
+        if settings.ALLOWED_HOSTS:
+            confirm_host = "https://" + settings.ALLOWED_HOSTS[0]
+        else:
+            confirm_host = "http://127.0.0.1:8000"
+        confirm_uri = reverse("gertrude:generic_confirmation:generic_confirmation_by_get", args=(instance.token,))
+        confirm_url = confirm_host + confirm_uri
 
         send_mail("[YunoHost doc] Please confirm your submission !",
                   render_to_string("confirm_mail.txt", { 'confirm_url': confirm_url }),
