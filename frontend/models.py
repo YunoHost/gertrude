@@ -111,9 +111,7 @@ def create_PR(page, comment, date, patch):
         p.stdin.write(patch.encode('utf-8'))
         stdout, stderr = p.communicate()
         p.stdin.close()
-        try:
-            assert p.returncode == 0
-        except:
+        if p.returncode != 0:
             print(stdout.decode('utf-8'))
             print(stderr.decode('utf-8'))
             raise Exception("Error while trying to apply the patch :s")
