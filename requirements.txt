@@ -1,6 +1,6 @@
 certifi==2018.4.16
 chardet==3.0.4
-Django==2.0.4
+Django==2.2.24
 django-extensions==2.0.7
 django-generic-confirmation==0.4.2
 filelock==3.0.4
